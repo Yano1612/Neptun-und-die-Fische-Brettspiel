@@ -1,5 +1,6 @@
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.widgets.Label;
@@ -7,6 +8,7 @@ import org.eclipse.swt.widgets.Label;
 import java.util.ArrayList;
 
 public class main {
+    // Declaration of necessary variables
     static int turn = 2;
     static Tile Mover = null;
     static Display display = new Display();
@@ -16,11 +18,10 @@ public class main {
     static boolean stop = false;
 
     static Label lHints = new Label(shell, SWT.NONE);
+    static boolean inactivePieceSelected = false;
 
     public static void main(String[] args) {
         // Erstellen der GUI
-        ArrayList<Tile> tiles = new ArrayList<Tile>();
-
         shell.setText("Board Game");
         shell.setSize(500, 500);
         shell.open();
@@ -55,7 +56,7 @@ public class main {
     static int counter = 0;
 
     public static void createTile(int x, int y, Shell shell, int row, int num) {
-        // Ersteller eines Feldes
+        // Creating tiles
         Tile tile = new Tile(shell, SWT.NO_REDRAW_RESIZE, row, num, counter);
         main.tiles[row][num] = tile;
         tile.setBounds(x, y, 50, 50);
@@ -64,10 +65,15 @@ public class main {
         tile.addPaintListener(new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
-                // Bemalen des Feldes
+                // Painting the Tiles
                 Font font = new Font(shell.getDisplay(), "Arial", 14, SWT.BOLD);
                 Font font2 = new Font(shell.getDisplay(), "Arial", 14, SWT.NONE);
                 e.gc.drawRectangle(0, 0, 50, 50);
+                if (tile.getSelected()) {
+                    e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_RED));
+                    e.gc.fillRectangle(0, 0, 50, 50);
+                    tile.setSelected(false);
+                }
                 if (tile.getState() == 1) {
                     e.gc.setFont(font2);
                     e.gc.drawText("W", 17, 15);
@@ -76,6 +82,7 @@ public class main {
                     e.gc.setFont(font);
                     e.gc.drawText("S", 17, 15);
                 }
+
                 font.dispose();
 
             }
@@ -87,16 +94,25 @@ public class main {
 
             @Override
             public void mouseDown(MouseEvent e) {
-                // Auswählen des sich bewegenden Tiles durch einen Rechtsclick
+                // Selecting a piece by Right-Clicking
+                inactivePieceSelected = false;
                 if (e.button == 3) {
-                    Mover = tile;
+                    if (tile.getState() == turn) {
+                        tile.setSelected(true);
+                        tile.redraw();
+                        Mover = tile;
+                        System.out.println(getAdjacentTiles(Mover));
+                    } else {
+                        lHints.setText("Selected piece is not active");
+                        inactivePieceSelected = true;
+                    }
                 } else if (Mover != null) {
-
                     ArrayList<Tile> Adjacent = getAdjacentTiles(tile);
-                    // Ausführen des Zuges
+
+                    // Execution of the Move
                     if (checkLegality(Adjacent, tile) & !stop) {
                         tile.setState(turn);
-                        tile.redraw(); // Aktualisiert die Paint-Funktion
+                        tile.redraw(); // Updates the Paint-Function
                         Mover.setState(0);
                         Mover.redraw();
                         if (turn == 1) {
@@ -106,7 +122,8 @@ public class main {
                         }
                     } else {
                         lHints.setText("Illegal Move");
-                        System.out.println("Illegal Move");
+                        Mover.setSelected(false);
+                        Mover.redraw();
 
                     }
 
@@ -116,10 +133,10 @@ public class main {
                         lTurn.setText("Currently Active: White   ");
 
                     }
-                    //Zurücksetzen des Movers
+                    //Reset the moving Piece
                     Mover = null;
 
-                    // Prüfen, ob jemand gewonnen hat
+                    // Checking, if a player has won
                     int winner = checkWinner();
                     if (winner != 0) {
                         stop = true;
@@ -129,11 +146,13 @@ public class main {
                             lTurn.setText("Winner: Black   ");
                         }
                     }
-
-
                 } else {
-                    lHints.setText("Please select which piece to move by Right-Clicking it.");
-                    System.out.println("Please select which piece to move by Right-Clicking it.");
+                    if (!inactivePieceSelected) {
+                        lHints.setText("No piece selected (Select piece by Right-Clicking it.)");
+                        tile.setSelected(false);
+                        tile.redraw();
+
+                    }
                 }
             }
 
@@ -144,7 +163,7 @@ public class main {
     }
 
     public static ArrayList<Tile> getAdjacentTiles(Tile tile) {
-        // Erfassen der benachbarten Felder
+        // Creating a list of Adjacent tiles
         ArrayList<Tile> Adjacent = new ArrayList<Tile>();
         try {
             Adjacent.add(main.tiles[tile.row + 1][tile.num]);
@@ -166,15 +185,16 @@ public class main {
         } catch (java.lang.ArrayIndexOutOfBoundsException ex) {
             Adjacent.add(null);
         }
+
         return Adjacent;
     }
 
     public static boolean checkLegality(ArrayList<Tile> Adjacent, Tile tile) {
-        // Prüfen der Legalität eines Zuges
+        // Checking the legality of a move
         boolean legal = false;
         for (int i = 0; i <= Adjacent.size() - 1; i++) {
             if (Adjacent.get(i) != null) {
-                if (Adjacent.get(i).getState() == turn) {
+                if (Adjacent.get(i) == Mover) {
                     legal = true;
                     break;
                 }
@@ -189,7 +209,7 @@ public class main {
     }
 
     public static int checkWinner() {
-        // Prüfen, ob jemand gewonnen hat
+        // Checking if white has won
         int won = 0;
         int blacksVertical;
         int blacksHorizontal;
@@ -215,7 +235,7 @@ public class main {
                 }
             }
         }
-        // Erfassen der Möglichen Züge der Schwarzen felder
+        // Checking if Black has won
         boolean possibleMoves = false;
         for (int k = 0; k < 3; k++) {
             ArrayList<Tile> Adj = getAdjacentTiles(blackTiles.get(k));

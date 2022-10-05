@@ -3,8 +3,8 @@ import org.eclipse.swt.widgets.Composite;
 
 
 public class Tile extends Canvas{
-    private int state; // 0 = Leer; 1 = Weiß; 2 = Schwarz
-    int index = 0;
+    private int state; // 0 = Empty; 1 = White; 2 = Black
+    private boolean selected = false;
     int row = 0;
     int num = 0;
     public int getState(){
@@ -12,6 +12,12 @@ public class Tile extends Canvas{
     }
     public void setState(int val){
         this.state = val;
+    }
+    public boolean getSelected(){
+        return this.selected;
+    }
+    public void setSelected(boolean val){
+        this.selected = val;
     }
     public Tile(Composite parent, int style,int row, int num, int counter) {
         super(parent, style);
@@ -26,7 +32,7 @@ public class Tile extends Canvas{
         }
     }
     public String toString(){
-        return ("State: " + this.state + "  Coords: (" +this.row+"|"+this.num+")" );
+        return ("Coords: (" +this.row+"|"+this.num+")" );
     }
 
 }
