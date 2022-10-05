@@ -2,13 +2,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Label;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class main {
     static int turn = 2;
-    static int compensation = 0;
     static Tile Mover = null;
     static Display display = new Display();
     static Shell shell = new Shell(display);
@@ -16,23 +15,30 @@ public class main {
     static Tile[][] tiles = new Tile[5][5];
     static boolean stop = false;
 
+    static Label lHints = new Label(shell, SWT.NONE);
+
     public static void main(String[] args) {
         // Erstellen der GUI
         ArrayList<Tile> tiles = new ArrayList<Tile>();
 
-        shell.setText("Brettspiel");
+        shell.setText("Board Game");
         shell.setSize(500, 500);
         shell.open();
 
 
-        lTurn.setText("Currently Active: Black");
-        lTurn.setLocation(10, 370);
+        lTurn.setText("Currently Active: Black   ");
+        lTurn.setBounds(10, 370, 100, 30);
         lTurn.pack();
+
+        lHints.setText("                                                                                                       ");
+        lHints.setBounds(10, 400, 100, 30);
+        lHints.pack();
+
         int lenRow = 4;
         // erstellen der Spielfelder
         for (int n = 0; n <= lenRow; n++) {
             for (int i = 0; i <= lenRow; i++) {
-                createTile(i * 70 + 10, n * 70 + 10, shell, tiles, n, i);
+                createTile(i * 70 + 10, n * 70 + 10, shell, n, i);
             }
         }
 
@@ -48,7 +54,7 @@ public class main {
 
     static int counter = 0;
 
-    public static void createTile(int x, int y, Shell shell, ArrayList<Tile> tiles, int row, int num) {
+    public static void createTile(int x, int y, Shell shell, int row, int num) {
         // Ersteller eines Feldes
         Tile tile = new Tile(shell, SWT.NO_REDRAW_RESIZE, row, num, counter);
         main.tiles[row][num] = tile;
@@ -81,48 +87,63 @@ public class main {
 
             @Override
             public void mouseDown(MouseEvent e) {
-                ArrayList<Tile> Adjacent = getAdjacentTiles(tile);
-                // Ausführen des Zuges
-                if (checkLegality(Adjacent, tile) & !stop) {
-                    tile.setState(turn);
-                    tile.redraw(); // Aktualisiert die Paint-Funktion
-                    Mover.setState(0);
-                    Mover.redraw();
-                    if (turn == 1) {
-                        turn = 2;
-                    } else if (turn == 2) {
-                        turn = 1;
+                // Auswählen des sich bewegenden Tiles durch einen Rechtsclick
+                if (e.button == 3) {
+                    Mover = tile;
+                } else if (Mover != null) {
+
+                    ArrayList<Tile> Adjacent = getAdjacentTiles(tile);
+                    // Ausführen des Zuges
+                    if (checkLegality(Adjacent, tile) & !stop) {
+                        tile.setState(turn);
+                        tile.redraw(); // Aktualisiert die Paint-Funktion
+                        Mover.setState(0);
+                        Mover.redraw();
+                        if (turn == 1) {
+                            turn = 2;
+                        } else if (turn == 2) {
+                            turn = 1;
+                        }
+                    } else {
+                        lHints.setText("Illegal Move");
+                        System.out.println("Illegal Move");
+
                     }
+
+                    if (turn == 2 & !stop) {
+                        lTurn.setText("Currently Active: Black   ");
+                    } else if (turn == 1 & !stop) {
+                        lTurn.setText("Currently Active: White   ");
+
+                    }
+                    //Zurücksetzen des Movers
+                    Mover = null;
+
+                    // Prüfen, ob jemand gewonnen hat
+                    int winner = checkWinner();
+                    if (winner != 0) {
+                        stop = true;
+                        if (winner == 1) {
+                            lTurn.setText("Winner: White   ");
+                        } else if (winner == 2) {
+                            lTurn.setText("Winner: Black   ");
+                        }
+                    }
+
+
                 } else {
-                    System.out.println("Illegal Move");
+                    lHints.setText("Please select which piece to move by Right-Clicking it.");
+                    System.out.println("Please select which piece to move by Right-Clicking it.");
                 }
-                // Prüfen, ob jemand gewonnen hat
-                int winner = checkWinner();
-                if (winner != 0) {
-                    stop = true;
-                    if (winner == 1) {
-                        lTurn.setText("Winner: White");
-                    } else if (winner == 2) {
-                        lTurn.setText("Winner: Black");
-                    }
-                }
-
-                if (turn == 2 & !stop) {
-                    lTurn.setText("Currently Active: Black");
-                } else if (turn == 1 & !stop) {
-                    lTurn.setText("Currently Active: White");
-                }
-
             }
 
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
             }
         });
-
-
     }
-    public static ArrayList<Tile> getAdjacentTiles(Tile tile){
+
+    public static ArrayList<Tile> getAdjacentTiles(Tile tile) {
         // Erfassen der benachbarten Felder
         ArrayList<Tile> Adjacent = new ArrayList<Tile>();
         try {
@@ -147,6 +168,7 @@ public class main {
         }
         return Adjacent;
     }
+
     public static boolean checkLegality(ArrayList<Tile> Adjacent, Tile tile) {
         // Prüfen der Legalität eines Zuges
         boolean legal = false;
@@ -154,7 +176,6 @@ public class main {
             if (Adjacent.get(i) != null) {
                 if (Adjacent.get(i).getState() == turn) {
                     legal = true;
-                    Mover = Adjacent.get(i);
                     break;
                 }
             }
@@ -166,11 +187,12 @@ public class main {
         }
         return legal;
     }
+
     public static int checkWinner() {
         // Prüfen, ob jemand gewonnen hat
         int won = 0;
-        int blacksVertical = 0;
-        int blacksHorizontal = 0;
+        int blacksVertical;
+        int blacksHorizontal;
         ArrayList<Tile> blackTiles = new ArrayList<Tile>();
         for (int i = 0; i < tiles.length; i++) {
             blacksVertical = 0;
@@ -193,19 +215,19 @@ public class main {
                 }
             }
         }
-        System.out.println(blackTiles);
+        // Erfassen der Möglichen Züge der Schwarzen felder
         boolean possibleMoves = false;
-        for(int k = 0; k< 3;k++) {
+        for (int k = 0; k < 3; k++) {
             ArrayList<Tile> Adj = getAdjacentTiles(blackTiles.get(k));
             for (int i = 0; i < 3; i++) {
-                    if(Adj.get(i) != null ) {
-                        if (Adj.get(i).getState() == 1) {
-                            possibleMoves = true;
-                        }
+                if (Adj.get(i) != null) {
+                    if (Adj.get(i).getState() == 1) {
+                        possibleMoves = true;
                     }
+                }
             }
         }
-        if(!possibleMoves){
+        if (!possibleMoves) {
             won = 2;
         }
         return won;
