@@ -4,11 +4,9 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
-
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUI {
     // Declaration of necessary variables
@@ -17,14 +15,13 @@ public class GUI {
     Display display = new Display();
     Shell shell = new Shell(display);
     Label lTurn = new Label(shell, SWT.NONE);
-    static Tile[][] tiles = new Tile[5][5];
+    Canvas[][] tilesC = new Canvas[5][5];
 
     int counter = 0;
     Label lHints = new Label(shell, SWT.NONE);
     TurnManagement manager = new TurnManagement();
     int turn = 2;
-    Tile Mover = null;
-    boolean inactivePieceSelected = false;
+    Tile mover = null;
     public void initGUI() {
         // Erstellen der GUI
         shell.setText("Board Game");
@@ -56,12 +53,10 @@ public class GUI {
             @Override
             public void mouseDoubleClick(MouseEvent mouseEvent) {
             }
-
             @Override
             public void mouseDown(MouseEvent mouseEvent) {
-                manager.executeMove(tiles[0][4], tiles[1][4], tiles, turn, lHints, lTurn);
+                turn = AI.calculateNextMove(turn, manager);
             }
-
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
             }
@@ -82,12 +77,14 @@ public class GUI {
 
     public void createTile(int x, int y, Shell shell, int row, int num, Font font, Font font2) {
         // Creating tiles
-        Tile tile = new Tile(shell, SWT.NO_REDRAW_RESIZE, row, num, counter);
-        tiles[row][num] = tile;
-        tile.setBounds(x, y, 50, 50);
-        tile.pack();
+        Tile tile = new Tile(row, num, counter);
+        Canvas tileC = new Canvas(shell,SWT.NO_REDRAW_RESIZE);
+        manager.addToTiles(row, num, tile);
+        tilesC[row][num] = tileC;
+        tileC.setBounds(x, y, 50, 50);
+        tileC.pack();
         counter += 1;
-        tile.addPaintListener(new PaintListener() {
+        tileC.addPaintListener(new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
                 // Painting the Tiles
@@ -109,39 +106,42 @@ public class GUI {
 
             }
         });
-        tile.addMouseListener(new MouseListener() {
+        tileC.addMouseListener(new MouseListener() {
             @Override
             public void mouseDoubleClick(MouseEvent e) {
             }
 
             @Override
             public void mouseDown(MouseEvent e) {
-                // Selecting a piece by Right-Clicking
-                tile.redraw();
-                if (Mover != null) {
-                    Mover.redraw();
+                // Redrawing the Tiles
+                lHints.setText("                  ");
+                tileC.redraw();
+                if (mover != null) {
+                    tilesC[mover.row][mover.num].redraw();
                 }
+                // Selecting a piece by Right-Clicking
                 if (e.button == 3 && tile.getState() == turn) {
                     tile.setSelected(true);
-                    tile.redraw();
-                    Mover = tile;
-                    System.out.println(utility.getAdjacentTiles(Mover, tiles));
+                    tileC.redraw();
+                    // Selecting the starting Tile
+                    mover = tile;
 
-                } else if (Mover != null) {
-                    turn = manager.executeMove(Mover, tile, tiles, turn, lHints, lTurn);
+                }else if (mover != null) {
+                    // Executing the Move on the Left-Clicked tile
+                    turn = manager.executeMove(mover, tile);
+                    mover = null;
+                    // Configurung Labels
+                    List<String> texts;
+                    texts = manager.labelConfig();
+                    lTurn.setText(texts.get(0));
+                    lHints.setText(texts.get(1));
                 } else {
-                    if (!inactivePieceSelected) {
-                        lHints.setText("No piece selected (Select piece by Right-Clicking it.)");
-                        tile.setSelected(false);
-                        tile.redraw();
-                    } else {
-                        lHints.setText("Selected piece is not active");
-                        inactivePieceSelected = true;
-                    }
+                    lHints.setText("No valid piece selected (Select piece by Right-Clicking it.)");
+                    tile.setSelected(false);
+                    tileC.redraw();
+
                 }
             }
-
-
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
             }

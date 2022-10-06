@@ -1,58 +1,46 @@
-import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class TurnManagement {
+    private Tile startTile;
+    private int winner = 0;
+    private boolean stop = false;
+    private boolean illegalMove = false;
+    private int turn = 2;
+    private Tile[][] tiles = new Tile[5][5];
+    public void addToTiles(int row, int num, Tile tile){
+        tiles[row][num] = tile;
+    }
+    public Tile[][] getTiles(){
+        return this.tiles;
+    }
+    public int executeMove(Tile startTile, Tile destinationTile) {
 
-    Tile Mover;
-
-    boolean stop = false;
-    int turn;
-
-    public int executeMove(Tile Mover, Tile tile, Tile[][] tiles, int turn, Label lHints, Label lTurn) {
-        this.turn = turn;
-        this.Mover = Mover;
-        ArrayList<Tile> Adjacent = utility.getAdjacentTiles(tile, tiles);
+        this.startTile = startTile;
+        List<Tile> Adjacent = utility.getAdjacentTiles(destinationTile, tiles);
         // Execution of the Move (also Checks the legality of the move)
-        if (checkLegality(Adjacent, tile) && !stop) {
-            tile.setState(turn);
-            tile.redraw(); // Updates the Paint-Function
-            Mover.setState(0);
-            Mover.redraw();
-
+        if (checkLegality(Adjacent, destinationTile) && !stop) {
+            destinationTile.setState(turn);
+            startTile.setState(0);
             if (turn == 1) {
                 turn = 2;
             } else if (turn == 2) {
                 turn = 1;
             }
         } else {
-            lHints.setText("Illegal Move");
-            Mover.setSelected(false);
-            Mover.redraw();
-        }
 
-        if (turn == 2 && !stop) {
-            lTurn.setText("Currently Active: Black   ");
-        } else if (turn == 1 & !stop) {
-            lTurn.setText("Currently Active: White   ");
-
+            illegalMove = true;
+            startTile.setSelected(false);
         }
 
         // Checking, if a player has won
-        int winner = utility.checkWinner(tiles);
+        winner = utility.checkWinner(tiles);
         if (winner != 0) {
             stop = true;
-            if (winner == 1) {
-                lTurn.setText("Winner: White   ");
-            } else if (winner == 2) {
-                lTurn.setText("Winner: Black   ");
-            }
         }
         return turn;
-
-
     }
 
     public boolean checkLegality(List<Tile> Adjacent, Tile tile) {
@@ -60,7 +48,7 @@ public class TurnManagement {
         boolean legal = false;
         for (int i = 0; i <= Adjacent.size() - 1; i++) {
             if (Adjacent.get(i) != null) {
-                if (Adjacent.get(i) == this.Mover) {
+                if (Adjacent.get(i) == this.startTile) {
                     legal = true;
                     break;
                 }
@@ -72,5 +60,24 @@ public class TurnManagement {
             legal = false;
         }
         return legal;
+    }
+    public List<String> labelConfig(){
+        List<String> texts = new ArrayList<>();
+        if (turn == 2 && !stop) {
+            texts.add("Currently Active: Black   ");
+        } else if (turn == 1 && !stop) {
+            texts.add("Currently Active: White   ");
+        } else if (winner == 1 && stop) {
+            texts.add("Winner: White   ");
+        } else if (winner == 2 && stop) {
+            texts.add("Winner: Black   ");
+        }
+        if(illegalMove) {
+            texts.add("Illegal Move");
+            illegalMove = false;
+        } else {
+            texts.add("             ");
+        }
+        return texts;
     }
 }

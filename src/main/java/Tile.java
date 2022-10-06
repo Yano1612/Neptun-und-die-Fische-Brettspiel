@@ -1,8 +1,6 @@
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
 
 
-public class Tile extends Canvas{
+public class Tile{
     private int state; // 0 = Empty; 1 = White; 2 = Black
     private boolean selected = false;
     int row;
@@ -19,8 +17,7 @@ public class Tile extends Canvas{
     public void setSelected(boolean val){
         this.selected = val;
     }
-    public Tile(Composite parent, int style,int row, int num, int counter) {
-        super(parent, style);
+    public Tile(int row, int num, int counter) {
         this.row = row;
         this.num = num;
 
