@@ -103,7 +103,7 @@ public class GUI {
 
                 } else if (tile.getState() == 2) {
                     e.gc.setFont(font);
-                    e.gc.drawText("S", 17, 15);
+                    e.gc.drawText("B", 17, 15);
                 }
 
 
@@ -121,28 +121,22 @@ public class GUI {
                 if (Mover != null) {
                     Mover.redraw();
                 }
+                if (e.button == 3 && tile.getState() == turn) {
+                    tile.setSelected(true);
+                    tile.redraw();
+                    Mover = tile;
+                    System.out.println(utility.getAdjacentTiles(Mover, tiles));
 
-                if (e.button == 3) {
-                    if (tile.getState() == turn) {
-                        tile.setSelected(true);
-                        tile.redraw();
-                        Mover = tile;
-
-
-                        System.out.println(utility.getAdjacentTiles(Mover, tiles));
-                    } else {
-                        lHints.setText("Selected piece is not active");
-                        inactivePieceSelected = true;
-                    }
                 } else if (Mover != null) {
                     turn = manager.executeMove(Mover, tile, tiles, turn, lHints, lTurn);
                 } else {
-
                     if (!inactivePieceSelected) {
                         lHints.setText("No piece selected (Select piece by Right-Clicking it.)");
                         tile.setSelected(false);
                         tile.redraw();
-
+                    } else {
+                        lHints.setText("Selected piece is not active");
+                        inactivePieceSelected = true;
                     }
                 }
             }
