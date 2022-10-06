@@ -5,8 +5,8 @@ import org.eclipse.swt.widgets.Composite;
 public class Tile extends Canvas{
     private int state; // 0 = Empty; 1 = White; 2 = Black
     private boolean selected = false;
-    int row = 0;
-    int num = 0;
+    int row;
+    int num;
     public int getState(){
         return this.state;
     }
@@ -25,7 +25,7 @@ public class Tile extends Canvas{
         this.num = num;
 
 
-        if(counter==4|counter==12|counter==20) {
+        if(counter==4||counter==12||counter==20) {
             this.state = 2;
         } else {
             this.state = 1;
