@@ -32,7 +32,7 @@ public class GUI {
         shell.open();
         int lenRow = manager.getTiles().length;
 
-        
+
         // erstellen der Spielfelder
         Font font = new Font(shell.getDisplay(), "Arial", 14, SWT.BOLD);
         Font font2 = new Font(shell.getDisplay(), "Arial", 14, SWT.NONE);
