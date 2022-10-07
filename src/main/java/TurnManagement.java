@@ -6,7 +6,7 @@ import java.util.List;
 public class TurnManagement {
     private Tile startTile;
     private int winner = 0;
-    private boolean stop = false;
+    boolean stop = false;
     private boolean illegalMove = false;
     private int turn = 2;
     private Tile[][] tiles;
@@ -15,6 +15,9 @@ public class TurnManagement {
     }
     public Tile[][] getTiles(){
         return this.tiles;
+    }
+    public void setTiles(Tile[][] tiles){
+        this.tiles = tiles;
     }
     public int executeMove(Tile startTile, Tile destinationTile) {
 
