@@ -2,65 +2,67 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.concurrent.ThreadLocalRandom;
+
+
 public class AI {
-    public static int calculateNextMove(int turn, TurnManagement manager){
+    Tile startTile = null;
+    Tile destinationTile = null;
+    TurnManagement manager = null;
+    public int calculateNextMove(int turn, TurnManagement manager) {
         // Still Buggy
-        /*
+        this.manager = manager;
         Tile[][] tiles = manager.getTiles();
-        Tile startTile = null;
-        Tile destinationTile = null;
+
         List<Tile> whiteTiles = new ArrayList<>();
         List<Tile> blackTiles = new ArrayList<>();
-        for(int r = 0; r <tiles[1].length;r++){
-            for(int n = 0; n <tiles[1].length;n++){
-                if(tiles[r][n].getState() == 1) {
+        for (int r = 0; r < tiles[1].length; r++) {
+            for (int n = 0; n < tiles[1].length; n++) {
+                if (tiles[r][n].getState() == 1) {
                     whiteTiles.add(tiles[r][n]);
-                } else {
+                } else if(tiles[r][n].getState() == 2){
                     blackTiles.add(tiles[r][n]);
                 }
             }
         }
-        boolean stop = false;
-        List<Tile> adj = new ArrayList<>();
-        if(turn == 2){
-            while(!stop) {
-                startTile = blackTiles.get((int) (Math.random() * blackTiles.size()));
-                adj = utility.getAdjacentTiles(startTile, tiles);
-                for (int i = 0; i <= 3; i++) {
-                    if(adj.get(i) != null) {
-                        if (adj.get(i).getState() != 1) {
-                            adj.remove(i);
-                        }
-                    }
-                }
-                if(adj.size() > 0){
-                    stop = true;
-                    destinationTile = adj.get((int) (Math.random()*adj.size()));
-                }
-            }
+        if (turn == 2) {
+            getTilesToMove(blackTiles, 2);
+        } else if (turn == 1) {
+            getTilesToMove(whiteTiles, 1);
+        }
 
-        } else{
-            while(!stop) {
-                startTile = whiteTiles.get((int) (Math.random() * whiteTiles.size()));
-                adj = utility.getAdjacentTiles(startTile, tiles);
-                for (int i = 0; i <= 3; i++) {
-                    if(adj.get(i) != null) {
-                        if (adj.get(i).getState() != 0) {
-                            adj.remove(i);
+        System.out.println("\n" + startTile);
+        System.out.println(destinationTile);
+        return manager.executeMove(startTile, destinationTile);
+    }
+
+
+    public List<Tile> returnMovedTiles() {
+        List<Tile> movedTiles = new ArrayList<>();
+        movedTiles.add(startTile);
+        movedTiles.add(destinationTile);
+        return movedTiles;
+    }
+
+    public void getTilesToMove(List<Tile> list, int color) {
+        List<Tile> adj;
+        while(destinationTile == null) {
+            startTile = list.get(ThreadLocalRandom.current().nextInt(list.size()));
+            adj = Utility.getAdjacentTiles(startTile, manager.getTiles());
+
+            for (int i = 0; i < adj.size(); i++) {
+                if (adj.get(i) != null) {
+                    if (color == 1) {
+                        if (adj.get(i).getState() == 0) {
+                            destinationTile = adj.get(i);
+                        }
+                    } else if (color == 2) {
+                        if (adj.get(i).getState() == 1) {
+                            destinationTile = adj.get(i);
                         }
                     }
-                }
-                if(adj.size() > 0){
-                    stop = true;
-                    destinationTile = adj.get((int) (Math.random()*adj.size()));
                 }
             }
         }
-        System.out.println(startTile);
-
-
-        System.out.println(destinationTile);
-        return manager.executeMove(startTile, destinationTile); */
-        return 1;
     }
 }

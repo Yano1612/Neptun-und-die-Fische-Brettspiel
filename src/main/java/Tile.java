@@ -17,16 +17,12 @@ public class Tile{
     public void setSelected(boolean val){
         this.selected = val;
     }
-    public Tile(int row, int num, int counter) {
+    public Tile(int row, int num, int state) {
         this.row = row;
         this.num = num;
+        this.state = state;
 
 
-        if(counter==4||counter==12||counter==20) {
-            this.state = 2;
-        } else {
-            this.state = 1;
-        }
     }
     public String toString(){
         return ("Coords: (" +this.row+"|"+this.num+")" );

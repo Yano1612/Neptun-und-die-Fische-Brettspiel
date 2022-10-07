@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class utility {
+public class Utility {
     public static List<Tile> getAdjacentTiles(Tile tile, Tile[][] tiles) {
         // Creating a list of Adjacent tiles
         List<Tile> Adjacent = new ArrayList<>();

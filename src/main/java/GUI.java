@@ -15,29 +15,33 @@ public class GUI {
     Display display = new Display();
     Shell shell = new Shell(display);
     Label lTurn = new Label(shell, SWT.NONE);
-    Canvas[][] tilesC = new Canvas[5][5];
+    Canvas[][] tilesC;
 
     int counter = 0;
     Label lHints = new Label(shell, SWT.NONE);
-    TurnManagement manager = new TurnManagement();
+    TurnManagement manager;
     int turn = 2;
     Tile mover = null;
-    public void initGUI() {
+    public void initGUI(TurnManagement TurnManager) {
+        this.manager = TurnManager;
+        int length = manager.getTiles().length;
+        tilesC = new Canvas[length][length];
         // Erstellen der GUI
         shell.setText("Board Game");
         shell.setSize(400, 600);
         shell.open();
+        int lenRow = manager.getTiles().length;
 
-
-        int lenRow = 4;
+        
         // erstellen der Spielfelder
         Font font = new Font(shell.getDisplay(), "Arial", 14, SWT.BOLD);
         Font font2 = new Font(shell.getDisplay(), "Arial", 14, SWT.NONE);
-        for (int n = 0; n <= lenRow; n++) {
-            for (int i = 0; i <= lenRow; i++) {
-                createTile(i * 70 + 10, n * 70 + 10, shell, n, i, font, font2);
+        for (int n = 0; n < lenRow; n++) {
+            for (int i = 0; i < lenRow; i++) {
+                createTile(i * 70 + 10, n * 70 + 10, shell, n, i, font, font2,manager.getTiles()[n][i]);
             }
         }
+
         lTurn.setText("Currently Active: Black   ");
         lTurn.setBounds(10, 370, 100, 30);
         lTurn.pack();
@@ -55,7 +59,19 @@ public class GUI {
             }
             @Override
             public void mouseDown(MouseEvent mouseEvent) {
-                turn = AI.calculateNextMove(turn, manager);
+                List<String> texts;
+                AI ai = new AI();
+
+                turn = ai.calculateNextMove(turn, manager);
+                List<Tile> movedTiles = ai.returnMovedTiles();
+                for (int i = 0; i < movedTiles.size(); i++) {
+                    Tile tile = movedTiles.get(i);
+                    tilesC[tile.row][tile.num].redraw();
+                }
+                texts = manager.labelConfig();
+                lTurn.setText(texts.get(0));
+                lHints.setText(texts.get(1));
+
             }
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
@@ -75,15 +91,13 @@ public class GUI {
 
     }
 
-    public void createTile(int x, int y, Shell shell, int row, int num, Font font, Font font2) {
+    public void createTile(int x, int y, Shell shell, int row, int num, Font font, Font font2, Tile tile) {
         // Creating tiles
-        Tile tile = new Tile(row, num, counter);
         Canvas tileC = new Canvas(shell,SWT.NO_REDRAW_RESIZE);
-        manager.addToTiles(row, num, tile);
         tilesC[row][num] = tileC;
         tileC.setBounds(x, y, 50, 50);
         tileC.pack();
-        counter += 1;
+
         tileC.addPaintListener(new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
@@ -119,17 +133,18 @@ public class GUI {
                 if (mover != null) {
                     tilesC[mover.row][mover.num].redraw();
                 }
-                // Selecting a piece by Right-Clicking
-                if (e.button == 3 && tile.getState() == turn) {
+
+                if (e.button == 3) {
                     tile.setSelected(true);
                     tileC.redraw();
-                    // Selecting the starting Tile
+                    // Selecting the starting Tile with a right click
                     mover = tile;
 
                 }else if (mover != null) {
                     // Executing the Move on the Left-Clicked tile
                     turn = manager.executeMove(mover, tile);
                     mover = null;
+
                     // Configurung Labels
                     List<String> texts;
                     texts = manager.labelConfig();
