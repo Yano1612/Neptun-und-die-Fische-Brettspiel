@@ -17,8 +17,9 @@ public class TurnManagement {
     public boolean getStop(){
         return this.stop;
     }
-    public void setTiles(Tile[][] tiles){
+    public void setBoard(Tile[][] tiles, int turn){
         this.tiles = tiles;
+        this.turn = turn;
     }
     public void initGame(int lenRow){
         int counter = 0;
@@ -36,11 +37,9 @@ public class TurnManagement {
 
     }
     public int executeMove(Tile startTile, Tile destinationTile) {
-
         this.startTile = startTile;
-        List<Tile> Adjacent = Utility.getAdjacentTiles(destinationTile, tiles);
         // Execution of the Move (also Checks the legality of the move)
-        if (checkLegality(Adjacent, destinationTile) && !stop) {
+        if (checkLegality(destinationTile) && !stop) {
             destinationTile.setState(turn);
             this.startTile.setState(0);
             if (turn == 1) {
@@ -61,16 +60,18 @@ public class TurnManagement {
         return turn;
     }
 
-    private boolean checkLegality(List<Tile> Adjacent, Tile destinationTile) {
+    private boolean checkLegality(Tile destinationTile) {
         // Checking the legality of a move
         boolean legal = false;
-        if(Math.abs(startTile.getRow() - destinationTile.getRow()) + Math.abs(startTile.getNum() - destinationTile.getNum())==1){
+        if(Math.abs(startTile.getRow() - destinationTile.getRow()) + Math.abs(startTile.getNum() - destinationTile.getNum())==1 && startTile.getState()==turn){
             legal = true;
         }
         if (legal && turn == 2 && destinationTile.getState() != 1) {
             legal = false;
+
         } else if (legal && turn == 1 && destinationTile.getState() != 0) {
             legal = false;
+
         }
         return legal;
     }

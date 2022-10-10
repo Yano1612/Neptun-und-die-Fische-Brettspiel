@@ -7,7 +7,7 @@ public class Main {
         int lenRow = 5;
         TurnManagement manager = new TurnManagement(lenRow);
         manager.initGame(lenRow);
-        gui.initGUI(manager);
+        gui.initGUI(manager, 70);
     }
 
 

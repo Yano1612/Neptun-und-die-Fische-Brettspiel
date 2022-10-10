@@ -52,7 +52,7 @@ public class Utility {
                 countX += 1;
             }
         }
-        if(countY == 3 || countX == 3){
+        if(countY == blackTiles.size() || countX == blackTiles.size()){
             won += 1;
         }
         // Checking if Black has won

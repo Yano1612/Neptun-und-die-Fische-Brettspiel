@@ -1,4 +1,3 @@
-import static org.junit.jupiter.api.Assertions.*;
 import Logic.*;
 import View.GUI;
 
@@ -25,8 +24,8 @@ class AITest {
                 }
             }
         }
-        manager.setTiles(tiles);
+        manager.setBoard(tiles,2);
         GUI gui= new GUI();
-        gui.initGUI(manager);
+        gui.initGUI(manager, 70);
     }
 }

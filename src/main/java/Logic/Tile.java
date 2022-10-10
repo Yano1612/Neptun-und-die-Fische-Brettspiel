@@ -31,7 +31,7 @@ public class Tile{
 
     }
     public String toString(){
-        return ("Coords: (" +this.row+"|"+this.num+")" );
+        return ("Coords: (" +this.row+"|"+this.num+"), State: " + this.state );
     }
 
 }
