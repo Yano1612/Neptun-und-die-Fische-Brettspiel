@@ -49,6 +49,32 @@ public class GUI {
         Button bAI = new Button(shell, SWT.NONE);
         bAI.setText("Let AI do next Move");
         bAI.setBounds(10, 450, 100, 30);
+        bAI.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseDoubleClick(MouseEvent mouseEvent) {
+            }
+
+            @Override
+            public void mouseDown(MouseEvent mouseEvent) {
+                List<String> texts;
+                AI ai = new AI();
+
+                turn = ai.calculateNextMove(turn, manager);
+                List<Tile> movedTiles = ai.returnMovedTiles();
+                for (int i = 0; i < movedTiles.size(); i++) {
+                    board.redraw();
+                }
+                texts = manager.labelConfig();
+                lTurn.setText(texts.get(0));
+                lHints.setText(texts.get(1));
+
+            }
+
+            @Override
+            public void mouseUp(MouseEvent mouseEvent) {
+            }
+        });
+        bAI.pack();
         // erstellen der Spielfelder
         board.setBounds(10, 10, width+1, height+1);
         board.addPaintListener(new PaintListener() {
@@ -129,32 +155,7 @@ public class GUI {
             public void mouseUp(MouseEvent mouseEvent) {
             }
         });
-        bAI.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseDoubleClick(MouseEvent mouseEvent) {
-            }
 
-            @Override
-            public void mouseDown(MouseEvent mouseEvent) {
-                List<String> texts;
-                AI ai = new AI();
-
-                turn = ai.calculateNextMove(turn, manager);
-                List<Tile> movedTiles = ai.returnMovedTiles();
-                for (int i = 0; i < movedTiles.size(); i++) {
-                    board.redraw();
-                }
-                texts = manager.labelConfig();
-                lTurn.setText(texts.get(0));
-                lHints.setText(texts.get(1));
-
-            }
-
-            @Override
-            public void mouseUp(MouseEvent mouseEvent) {
-            }
-        });
-        bAI.pack();
 
         // Mainloop
         while (!shell.isDisposed()) {
