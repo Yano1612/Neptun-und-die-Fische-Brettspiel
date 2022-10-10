@@ -1,8 +1,9 @@
-
+import Logic.*;
+import View.*;
 public class Main {
-    static GUI gui = new GUI();
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
+        GUI gui = new GUI();
         int lenRow = 5;
         TurnManagement manager = new TurnManagement(lenRow);
         int counter = 0;
