@@ -34,29 +34,26 @@ public class Utility {
     public static int checkWinner(Tile[][] tiles) {
         // Checking if white has won
         int won = 0;
-        int blacksVertical;
-        int blacksHorizontal;
         List<Tile> blackTiles = new ArrayList<>();
         for (int i = 0; i < tiles.length; i++) {
-            blacksVertical = 0;
-            blacksHorizontal = 0;
             for (int k = 0; k < tiles.length; k++) {
-                if (tiles[i][k].getState() == 2) {
-                    blacksHorizontal += 1;
+                if(tiles[i][k].getState() == 2) {
                     blackTiles.add(tiles[i][k]);
-                    if (blacksHorizontal == 3) {
-                        won = 1;
-                        break;
-                    }
-                }
-                if (tiles[k][i].getState() == 2) {
-                    blacksVertical += 1;
-                    if (blacksVertical == 3) {
-                        won = 1;
-                        break;
-                    }
                 }
             }
+        }
+        int countX = 0;
+        int countY = 0;
+        for(int i = 0; i<blackTiles.size();i++) {
+            if(blackTiles.get(0).getRow() == blackTiles.get(i).getRow()){
+                countY += 1;
+            }
+            if(blackTiles.get(0).getNum() == blackTiles.get(i).getNum()){
+                countX += 1;
+            }
+        }
+        if(countY == 3 || countX == 3){
+            won += 1;
         }
         // Checking if Black has won
         boolean possibleMoves = false;
@@ -71,7 +68,10 @@ public class Utility {
             }
         }
         if (!possibleMoves) {
-            won = 2;
+            won += 2;
+        }
+        if(won == 3){
+            won = 1;
         }
         return won;
     }

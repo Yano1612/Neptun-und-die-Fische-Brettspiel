@@ -11,9 +11,6 @@ public class TurnManagement {
     boolean illegalMove = false;
     int turn = 2;
     Tile[][] tiles;
-    public void addToTiles(Tile tile){
-        tiles[tile.row][tile.num] = tile;
-    }
     public Tile[][] getTiles(){
         return this.tiles;
     }
@@ -22,6 +19,21 @@ public class TurnManagement {
     }
     public void setTiles(Tile[][] tiles){
         this.tiles = tiles;
+    }
+    public void initGame(int lenRow){
+        int counter = 0;
+
+        for (int n = 0; n < lenRow; n++) {
+            for (int i = 0; i < lenRow; i++) {
+                if(counter==4||counter==12||counter==20) {
+                    tiles[n][i]  = new Tile(n, i, 2);
+                } else {
+                    tiles[n][i] = new Tile(n, i, 1);
+                }
+                counter += 1;
+            }
+        }
+
     }
     public int executeMove(Tile startTile, Tile destinationTile) {
 
@@ -52,13 +64,8 @@ public class TurnManagement {
     private boolean checkLegality(List<Tile> Adjacent, Tile destinationTile) {
         // Checking the legality of a move
         boolean legal = false;
-        for (int i = 0; i <= Adjacent.size() - 1; i++) {
-            if (Adjacent.get(i) != null) {
-                if (Adjacent.get(i) == this.startTile && this.startTile.getState() == turn) {
-                    legal = true;
-                    break;
-                }
-            }
+        if(Math.abs(startTile.getRow() - destinationTile.getRow()) + Math.abs(startTile.getNum() - destinationTile.getNum())==1){
+            legal = true;
         }
         if (legal && turn == 2 && destinationTile.getState() != 1) {
             legal = false;

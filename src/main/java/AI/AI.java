@@ -29,14 +29,14 @@ public class AI {
         Tile winner = null;
 
         if (turn == 2) {
-            winner = checkWinnableMoves(blackTiles,turn);
+            winner = checkWinnableMoves(blackTiles, turn);
             if(winner == null) {
                 getTilesToMove(blackTiles, turn);
             } else {
                 destinationTile = winner;
             }
         } else if (turn == 1) {
-            winner = checkWinnableMoves(whiteTiles,turn);
+            winner = checkWinnableMoves(whiteTiles, turn);
             if(winner == null) {
                 getTilesToMove(whiteTiles, turn);
             } else {
@@ -97,7 +97,7 @@ public class AI {
                 if(managerTest.getStop()){
                     winner = possibleMoves.get(n);
                 } else {
-                    managerTest.setTiles(manager.getTiles());
+                    managerTest.setTiles(manager.getTiles().clone());
                 }
             }
         }

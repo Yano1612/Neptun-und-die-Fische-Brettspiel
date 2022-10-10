@@ -41,7 +41,7 @@ public class GUI {
         Font font2 = new Font(shell.getDisplay(), "Arial", 14, SWT.NONE);
         for (int n = 0; n < lenRow; n++) {
             for (int i = 0; i < lenRow; i++) {
-                createTile(i * 70 + 10, n * 70 + 10, shell, n, i, font, font2,manager.getTiles()[n][i]);
+                createTile(i * 70 + 10, n * 70 + 10, shell, n, i, font, font2, manager.getTiles()[n][i]);
             }
         }
 
