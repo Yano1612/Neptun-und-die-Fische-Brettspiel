@@ -14,7 +14,7 @@ public class AI {
     Tile destinationTile = null;
     TurnManagement manager = null;
     List<List<Tile>> NeutralMoves = new ArrayList<>();
-
+    List<Tile> possibleMoves;
     public int calculateNextMove(int turn, TurnManagement manager) {
         this.manager = manager;
         Tile[][] tiles = manager.getTiles();
@@ -41,8 +41,6 @@ public class AI {
         } else {
             destinationTile = winner;
         }
-        System.out.println("\n" + startTile);
-        System.out.println(destinationTile);
         return manager.executeMove(startTile, destinationTile);
     }
 
@@ -70,7 +68,7 @@ public class AI {
         Tile[][] realTiles = manager.getTiles();
         TurnManagement managerTest = new TurnManagement(realTiles.length);
         managerTest.setBoard(copyTiles(realTiles), turn);
-        List<Tile> possibleMoves;
+
         Tile[][] testTiles;
         Tile winner = null;
         Tile start;
@@ -94,7 +92,6 @@ public class AI {
                 }
             }
         }
-        System.out.println("NEUTRAL" + NeutralMoves);
         return winner;
     }
 
@@ -117,9 +114,11 @@ public class AI {
     }
 
     public void getTilesToMove(List<List<Tile>> list, int color) {
+        // TODO implement MiniMax algorithm
         List<Integer> scores = new ArrayList<>();
         int destScore = 0;
         int startScore = 0;
+
         for (int i = 0; i < list.size(); i++) {
             List<Tile> move = list.get(i);
             List<Tile> startADJ = Utility.getAdjacentTiles(move.get(0), manager.getTiles());
@@ -132,13 +131,13 @@ public class AI {
                         int stateAdj = startADJ.get(n).getState();
                         if (stateAdj == 0) {
                             startScore += 2;
-                        } else if (stateAdj == 2) {
+                        } else if (stateAdj == 1) {
                             startScore += 1;
                         }
                         stateAdj = destADJ.get(n).getState();
                         if (stateAdj == 0) {
                             destScore += 2;
-                        }else if (stateAdj == 2) {
+                        }else if (stateAdj == 1) {
                             destScore += 1;
                         }
                     } else {
@@ -148,19 +147,21 @@ public class AI {
                             destScore += 2;
                         }
                     }
+
+
                 } else if (color == 1){
                     if (startADJ.get(n) != null && destADJ.get(n) != null) {
                         int stateAdj = startADJ.get(n).getState();
                         if (stateAdj == 1) {
                             startScore += 2;
                         } else if (stateAdj == 2) {
-                            startScore += 3;
+                            startScore += 2;
                         }
                         stateAdj = destADJ.get(n).getState();
                         if (stateAdj == 1) {
-                            destScore += 1;
+                            destScore += 2;
                         } else if (stateAdj == 2) {
-                            destScore += 3;
+                            destScore += 2;
                         }
                     }
                 }
@@ -170,9 +171,38 @@ public class AI {
         }
         int bestScore = Collections.max(scores);
         List<Tile> bestMove = list.get(scores.indexOf(bestScore));
-        System.out.println(bestMove);
         startTile = bestMove.get(0);
         destinationTile = bestMove.get(1);
 
     }
+    //TODO Finish Minimax Implementation
+
+    public int miniMax(TurnManagement node, int depth,int turn){
+        // https://en.wikipedia.org/wiki/Minimax
+        int value = 0;
+        if(depth == 0|| node.getStop()){
+            // TODO implement value of method
+            value =  valOf(node);
+        }
+        if(turn == 2){
+            value = -1000000000;
+            for(int i = 0; i<possibleMoves.size();i++){
+                // TODO implement create child method --> Execute move in extra Manager
+                TurnManagement child = null;
+
+            }
+        } else if(turn == 1){
+            value = 1000000000;
+            for(int i = 0; i<possibleMoves.size();i++) {
+                // TODO implement create child method --> Execute move in extra Manager
+                TurnManagement child = null;
+            }
+        }
+        return value;
+    }
+
+    public int valOf(TurnManagement node){
+        return 1;
+    }
+
 }

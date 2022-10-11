@@ -25,6 +25,7 @@ public class GUI {
     int turn = 2;
     Tile mover = null;
     Canvas board = new Canvas(shell, SWT.NONE);
+    // TODO Remove variable
     boolean aiEnabled = false;
 
     public void initGUI(TurnManagement TurnManager, int size) {
@@ -37,8 +38,11 @@ public class GUI {
         int lenRow = manager.getTiles().length;
         int width = lenRow*size;
         int height = lenRow*size;
-
-        lTurn.setText("Currently Active: Black   ");
+        if(turn == 2) {
+            lTurn.setText("Currently Active: Black   ");
+        } else if(turn == 1){
+            lTurn.setText("Currently Active: White    ");
+        }
         lTurn.setBounds(10, 370, 100, 30);
         lTurn.pack();
 

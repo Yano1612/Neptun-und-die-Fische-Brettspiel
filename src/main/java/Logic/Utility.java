@@ -44,11 +44,11 @@ public class Utility {
         }
         int countX = 0;
         int countY = 0;
-        for(int i = 0; i<blackTiles.size();i++) {
-            if(blackTiles.get(0).getRow() == blackTiles.get(i).getRow()){
+        for(int i = 0; i < blackTiles.size(); i++) {
+            if(blackTiles.get(i).getRow() == blackTiles.get(0).getRow()){
                 countY += 1;
             }
-            if(blackTiles.get(0).getNum() == blackTiles.get(i).getNum()){
+            if(blackTiles.get(i).getNum() == blackTiles.get(0).getNum()){
                 countX += 1;
             }
         }
