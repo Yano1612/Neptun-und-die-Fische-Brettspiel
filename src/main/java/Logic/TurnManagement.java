@@ -14,6 +14,9 @@ public class TurnManagement {
     public Tile[][] getTiles(){
         return this.tiles;
     }
+    public boolean getIllegal(){
+        return this.illegalMove;
+    }
     public boolean getStop(){
         return this.stop;
     }
@@ -37,6 +40,7 @@ public class TurnManagement {
 
     }
     public int executeMove(Tile startTile, Tile destinationTile) {
+        illegalMove = false;
         this.startTile = startTile;
         // Execution of the Move (also Checks the legality of the move)
         if (checkLegality(destinationTile) && !stop) {
@@ -88,7 +92,6 @@ public class TurnManagement {
         }
         if(illegalMove) {
             texts.add("Illegal Move");
-            illegalMove = false;
         } else {
             texts.add("             ");
         }

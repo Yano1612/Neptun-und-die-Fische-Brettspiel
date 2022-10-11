@@ -25,10 +25,10 @@ public class GUI {
     int turn = 2;
     Tile mover = null;
     Canvas board = new Canvas(shell, SWT.NONE);
+    boolean aiEnabled = false;
 
     public void initGUI(TurnManagement TurnManager, int size) {
         this.manager = TurnManager;
-        int length = manager.getTiles().length;
         // Erstellen der GUI
         shell.setText("Board Game");
         shell.setSize(400, 600);
@@ -58,7 +58,6 @@ public class GUI {
             public void mouseDown(MouseEvent mouseEvent) {
                 List<String> texts;
                 AI ai = new AI();
-
                 turn = ai.calculateNextMove(turn, manager);
                 List<Tile> movedTiles = ai.returnMovedTiles();
                 for (int i = 0; i < movedTiles.size(); i++) {
@@ -121,8 +120,8 @@ public class GUI {
             @Override
             public void mouseDown(MouseEvent e) {
                 // Redrawing the Tiles
-                int tileX =(int) Math.ceil(e.x/(width/lenRow));
-                int tileY =(int) Math.ceil(e.y/(width/lenRow));
+                int tileX = (int) Math.ceil(e.x / (width / lenRow));
+                int tileY = (int) Math.ceil(e.y / (width / lenRow));
                 Tile tile = manager.getTiles()[tileX][tileY];
                 System.out.println(tile);
                 lHints.setText("                  ");
@@ -130,33 +129,32 @@ public class GUI {
                 if (mover != null) {
                     board.redraw();
                 }
-                if (e.button == 3) {
-                    tile.setSelected(true);
-                    board.redraw();
-                    // Selecting the starting Tile with a right click
-                    mover = tile;
-                } else if (mover != null) {
-                    // Executing the Move on the Left-Clicked tile
-                    turn = manager.executeMove(mover, tile);
-                    mover = null;
-                    // Configurung Labels
-                    List<String> texts;
-                    texts = manager.labelConfig();
-                    lTurn.setText(texts.get(0));
-                    lHints.setText(texts.get(1));
-                } else {
-                    lHints.setText("No valid piece selected (Select piece by Right-Clicking it.)");
-                    tile.setSelected(false);
-                    board.redraw();
+                if (!aiEnabled) {
+                    if (e.button == 3) {
+                        tile.setSelected(true);
+                        board.redraw();
+                        // Selecting the starting Tile with a right click
+                        mover = tile;
+                    } else if (mover != null) {
+                        // Executing the Move on the Left-Clicked tile
+                        turn = manager.executeMove(mover, tile);
+                        mover = null;
+                        // Configurung Labels
+                        List<String> texts;
+                        texts = manager.labelConfig();
+                        lTurn.setText(texts.get(0));
+                        lHints.setText(texts.get(1));
+                    } else {
+                        lHints.setText("No valid piece selected (Select piece by Right-Clicking it.)");
+                        tile.setSelected(false);
+                        board.redraw();
+                    }
                 }
             }
-
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
             }
         });
-
-
         // Mainloop
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
@@ -164,8 +162,6 @@ public class GUI {
             }
         }
         display.dispose();
-
-
     }
 
 }

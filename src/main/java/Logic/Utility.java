@@ -7,23 +7,23 @@ public class Utility {
     public static List<Tile> getAdjacentTiles(Tile tile, Tile[][] tiles) {
         // Creating a list of Adjacent tiles
         List<Tile> Adjacent = new ArrayList<>();
-        if(!(tile.row+1 >= tiles[1].length)) {
-            Adjacent.add(tiles[tile.row + 1][tile.num]);
+        if(!(tile.getRow()+1 >= tiles[1].length)) {
+            Adjacent.add(tiles[tile.getRow() + 1][tile.getNum()]);
         } else {
             Adjacent.add(null);
         }
-        if(!(tile.row-1 < 0)){
-            Adjacent.add(tiles[tile.row - 1][tile.num]);
+        if(!(tile.getRow()-1 < 0)){
+            Adjacent.add(tiles[tile.getRow() - 1][tile.getNum()]);
         } else {
             Adjacent.add(null);
         }
-        if(!(tile.num+1 >= tiles[1].length)){
-            Adjacent.add(tiles[tile.row][tile.num + 1]);
+        if(!(tile.getNum()+1 >= tiles[1].length)){
+            Adjacent.add(tiles[tile.getRow()][tile.getNum() + 1]);
         } else {
             Adjacent.add(null);
         }
-        if(!(tile.num-1 < 0 )) {
-            Adjacent.add(tiles[tile.row][tile.num - 1]);
+        if(!(tile.getNum()-1 < 0 )) {
+            Adjacent.add(tiles[tile.getRow()][tile.getNum() - 1]);
         } else {
             Adjacent.add(null);
         }
@@ -59,7 +59,7 @@ public class Utility {
         boolean possibleMoves = false;
         for (int k = 0; k < 3; k++) {
             List<Tile> Adj = getAdjacentTiles(blackTiles.get(k), tiles);
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
                 if (Adj.get(i) != null) {
                     if (Adj.get(i).getState() == 1) {
                         possibleMoves = true;
