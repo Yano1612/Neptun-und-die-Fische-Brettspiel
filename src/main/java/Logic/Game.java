@@ -78,6 +78,7 @@ public class Game {
             legal = false;
 
         }
+        System.out.println(legal);
         return legal;
     }
     public List<String> labelConfig(){
@@ -100,5 +101,13 @@ public class Game {
     }
     public Game(int lenRow){
         tiles = new Tile[lenRow][lenRow];
+    }
+
+    public boolean getIllegal() {
+        return this.illegalMove;
+    }
+
+    public boolean getStop() {
+        return this.stop;
     }
 }

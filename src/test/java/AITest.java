@@ -1,4 +1,4 @@
-import AI.AI;
+import AI.*;
 import Logic.*;
 
 class AITest {
@@ -75,7 +75,7 @@ class AITest {
     }
     public void executeTest(Game manager, Tile[][] tiles){
         manager.setBoard(tiles,1);
-        AI ai = new AI();
+        AINormal ai = new AINormal();
         ai.calculateNextMove(1, manager);
         if(manager.getTiles()[3][0].getState() == 1){
             System.out.println("Passed");

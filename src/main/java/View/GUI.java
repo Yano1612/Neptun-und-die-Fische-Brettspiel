@@ -9,9 +9,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
 
 import java.util.List;
-
 import Logic.*;
-import AI.AI;
+import AI.*;
 
 public class GUI {
     // Declaration of necessary variables
@@ -62,7 +61,7 @@ public class GUI {
             @Override
             public void mouseDown(MouseEvent mouseEvent) {
                 List<String> texts;
-                AI ai = new AI();
+                AINormal ai = new AINormal();
 
                 turn = ai.calculateNextMove(turn, manager);
 
