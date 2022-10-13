@@ -14,6 +14,12 @@ public class Game {
     public Tile[][] getTiles(){
         return this.tiles;
     }
+    boolean firstMove = true;
+
+    public boolean isFirstMove() {
+        return firstMove;
+    }
+
     public void setBoard(Tile[][] tiles, int turn){
         this.tiles = tiles;
         this.turn = turn;
@@ -45,6 +51,7 @@ public class Game {
             } else if (turn == 2) {
                 turn = 1;
             }
+            firstMove = false;
         } else {
             illegalMove = true;
             this.startTile.setSelected(false);

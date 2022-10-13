@@ -3,6 +3,7 @@ package AI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import Logic.Tile;
 import Logic.*;
@@ -10,38 +11,43 @@ import Logic.*;
 public class AI {
     Tile startTile = null;
     Tile destinationTile = null;
-    Game manager = null;
+
 
 
     public int calculateNextMove(int turn, Game manager) {
-        this.manager = manager;
-        List<List<Tile>> possibleMoves= getPossibleMoves(turn, copyTiles(manager.getTiles()));
-        int valueBest = -1000;
-        List<Tile> bestMove = new ArrayList<>();
-        for(int i = 0; i< possibleMoves.size();i++){
-            Game managerTest = new Game(manager.getTiles().length);
-            managerTest.setBoard(copyTiles(manager.getTiles()), turn);
-            managerTest.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(0));
-            int valueMove = miniMax(managerTest, 10,turn,false,-1000,1000);
-            System.out.println(valueMove);
-            if(valueMove > valueBest||i==0){
-                bestMove.clear();
-                valueBest = valueMove;
-                bestMove.add(possibleMoves.get(i).get(0));
-                bestMove.add(possibleMoves.get(i).get(1));
-                System.out.println("Found better move: " + bestMove + " with value " + valueBest);
+            if(!manager.isFirstMove()) {
+
+                List<List<Tile>> possibleMoves = getPossibleMoves(turn, copyTiles(manager.getTiles()), manager);
+                int valueBest = -1000;
+                List<Tile> bestMove = new ArrayList<>();
+                for (int i = 0; i < possibleMoves.size(); i++) {
+                    Game managerTest = new Game(manager.getTiles().length);
+                    managerTest.setBoard(copyTiles(manager.getTiles()), turn);
+                    managerTest.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(0));
+                    int valueMove = miniMax(managerTest, 10, turn, false, -1000, 1000);
+                    if (valueMove > valueBest || i == 0) {
+                        bestMove.clear();
+                        valueBest = valueMove;
+                        bestMove.add(possibleMoves.get(i).get(0));
+                        bestMove.add(possibleMoves.get(i).get(1));
+                        System.out.println("Found better move: " + bestMove + " with value " + valueBest);
+                    }
+                    if (valueMove == 3) {
+                        break;
+                    }
+                }
+                startTile = manager.getTiles()[bestMove.get(0).getRow()][bestMove.get(0).getNum()];
+                destinationTile = manager.getTiles()[bestMove.get(1).getRow()][bestMove.get(1).getNum()];
+
+            } else {
+                startTile = manager.getTiles()[2][2];
+                destinationTile = manager.getTiles()[2][3];
             }
-            if(valueMove == 3){
-                break;
-            }
-        }
-        startTile = manager.getTiles()[bestMove.get(0).getRow()][bestMove.get(0).getNum()];
-        destinationTile = manager.getTiles()[bestMove.get(1).getRow()][bestMove.get(1).getNum()];
-        return manager.executeMove(startTile, destinationTile);
+            return manager.executeMove(startTile, destinationTile);
     }
 
 
-    public List<Tile> getPossibleDestinationsTile(Tile tile, int color) {
+    public List<Tile> getPossibleDestinationsTile(Tile tile, int color, Game manager) {
         List<Tile> possibleDestinations = new ArrayList<>();
         List<Tile> adj = Utility.getAdjacentTiles(tile, copyTiles(manager.getTiles()));
         for (int i = 0; i < adj.size(); i++) {
@@ -88,40 +94,40 @@ public class AI {
         int value;
         List<List<Tile>> possibleMoves;
         if (max) {
-            possibleMoves = getPossibleMoves(turn,node.getTiles());
+            possibleMoves = getPossibleMoves(turn,node.getTiles(), node);
             value = -1000;
             for (int i = 0; i < possibleMoves.size(); i++) {
 
-                Game child = new Game(manager.getTiles().length);
+                Game child = new Game(node.getTiles().length);
                 child.setBoard(copyTiles(node.getTiles()), turn);
                 child.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(1));
                 value = Math.max(value, miniMax(child,depth-1,turn,false, alpha, beta));
-
                 alpha = Math.max(alpha, value);
                 if(value >= beta){
                     break;
                 }
             }
         } else {
-            possibleMoves = getPossibleMoves(-turn + 3,node.getTiles());
+            possibleMoves = getPossibleMoves(-turn + 3,node.getTiles(), node);
+
             value = 1000;
             for (int i = 0; i < possibleMoves.size(); i++) {
-                Game child = new Game(manager.getTiles().length);
-                child.setBoard(copyTiles(node.getTiles()), turn);
+                Game child = new Game(node.getTiles().length);
+                child.setBoard(copyTiles(node.getTiles()), -turn+3);
                 child.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(1));
+
                 value = Math.min(value, miniMax(child,depth-1,turn,true, alpha , beta));
                 beta = Math.min(beta, value);
                 if(value <= alpha){
                     break;
                 }
             }
-
         }
         return value;
 
     }
 
-    public List<List<Tile>> getPossibleMoves(int turn, Tile[][] tiles) {
+    public List<List<Tile>> getPossibleMoves(int turn, Tile[][] tiles, Game manager) {
         List<Tile> availableTiles = new ArrayList<>();
         for (int r = 0; r < tiles[1].length; r++) {
             for (int n = 0; n < tiles[1].length; n++) {
@@ -135,7 +141,7 @@ public class AI {
         Tile start;
         for (int i = 0; i < availableTiles.size(); i++) {
             start = availableTiles.get(i);
-            possibleMovesTile = getPossibleDestinationsTile(start, turn);
+            possibleMovesTile = getPossibleDestinationsTile(start, turn, manager);
             for (int n = 0; n < possibleMovesTile.size(); n++) {
                 if (manager.checkLegality(start, possibleMovesTile.get(n), turn)) {
                     List<Tile> pair = new ArrayList<>();
@@ -145,6 +151,7 @@ public class AI {
                 }
             }
         }
+
         return possibleMoves;
     }
     public int valOfPos(Game node, int turn){
@@ -153,8 +160,8 @@ public class AI {
         int[] count = {0, 0};
         Tile[][] tiles = node.getTiles();
 
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles.length; j++) {
                 if (tiles[i][j].getState() == 2) {
                     count[0]+=1;
                 }

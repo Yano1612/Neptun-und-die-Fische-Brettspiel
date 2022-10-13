@@ -63,7 +63,10 @@ public class GUI {
             public void mouseDown(MouseEvent mouseEvent) {
                 List<String> texts;
                 AI ai = new AI();
+
                 turn = ai.calculateNextMove(turn, manager);
+
+
                 board.redraw();
 
                 texts = manager.labelConfig();
