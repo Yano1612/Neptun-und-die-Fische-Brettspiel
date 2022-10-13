@@ -7,6 +7,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
+
 import java.util.List;
 
 import Logic.*;
@@ -21,14 +22,14 @@ public class GUI {
 
 
     Label lHints = new Label(shell, SWT.NONE);
-    TurnManagement manager;
+    Game manager;
     int turn = 2;
     Tile mover = null;
     Canvas board = new Canvas(shell, SWT.NONE);
     // TODO Remove variable
-    boolean aiEnabled = false;
 
-    public void initGUI(TurnManagement TurnManager, int size) {
+
+    public void initGUI(Game TurnManager, int size) {
         this.manager = TurnManager;
         // Erstellen der GUI
         shell.setText("Board Game");
@@ -36,11 +37,11 @@ public class GUI {
         shell.open();
 
         int lenRow = manager.getTiles().length;
-        int width = lenRow*size;
-        int height = lenRow*size;
-        if(turn == 2) {
+        int width = lenRow * size;
+        int height = lenRow * size;
+        if (turn == 2) {
             lTurn.setText("Currently Active: Black   ");
-        } else if(turn == 1){
+        } else if (turn == 1) {
             lTurn.setText("Currently Active: White    ");
         }
         lTurn.setBounds(10, 370, 100, 30);
@@ -63,10 +64,8 @@ public class GUI {
                 List<String> texts;
                 AI ai = new AI();
                 turn = ai.calculateNextMove(turn, manager);
-                List<Tile> movedTiles = ai.returnMovedTiles();
-                for (int i = 0; i < movedTiles.size(); i++) {
-                    board.redraw();
-                }
+                board.redraw();
+
                 texts = manager.labelConfig();
                 lTurn.setText(texts.get(0));
                 lHints.setText(texts.get(1));
@@ -79,7 +78,7 @@ public class GUI {
         });
         bAI.pack();
         // erstellen der Spielfelder
-        board.setBounds(10, 10, width+1, height+1);
+        board.setBounds(10, 10, width + 1, height + 1);
         board.addPaintListener(new PaintListener() {
             @Override
             public void paintControl(PaintEvent e) {
@@ -97,15 +96,16 @@ public class GUI {
                             e.gc.fillRectangle(n * size, i * size, size, size);
 
 
-                        } if (tile.getState() == 1) {
+                        }
+                        if (tile.getState() == 1) {
                             e.gc.setFont(font2);
-                            if(!tile.getSelected()) {
+                            if (!tile.getSelected()) {
                                 e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
                             }
-                            e.gc.drawText("W", n * size + size/2-7, i * size + size/2-7);
+                            e.gc.drawText("W", n * size + size / 2 - 7, i * size + size / 2 - 7);
                         } else if (tile.getState() == 2) {
                             e.gc.setFont(font);
-                            if(!tile.getSelected()) {
+                            if (!tile.getSelected()) {
                                 e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
                             }
                             e.gc.drawText("B", n * size + 28, i * size + 28);
@@ -133,28 +133,29 @@ public class GUI {
                 if (mover != null) {
                     board.redraw();
                 }
-                if (!aiEnabled) {
-                    if (e.button == 3) {
-                        tile.setSelected(true);
-                        board.redraw();
-                        // Selecting the starting Tile with a right click
-                        mover = tile;
-                    } else if (mover != null) {
-                        // Executing the Move on the Left-Clicked tile
-                        turn = manager.executeMove(mover, tile);
-                        mover = null;
-                        // Configurung Labels
-                        List<String> texts;
-                        texts = manager.labelConfig();
-                        lTurn.setText(texts.get(0));
-                        lHints.setText(texts.get(1));
-                    } else {
-                        lHints.setText("No valid piece selected (Select piece by Right-Clicking it.)");
-                        tile.setSelected(false);
-                        board.redraw();
-                    }
+
+                if (e.button == 3) {
+                    tile.setSelected(true);
+                    board.redraw();
+                    // Selecting the starting Tile with a right click
+                    mover = tile;
+                } else if (mover != null) {
+                    // Executing the Move on the Left-Clicked tile
+                    turn = manager.executeMove(mover, tile);
+                    mover = null;
+                    // Configurung Labels
+                    List<String> texts;
+                    texts = manager.labelConfig();
+                    lTurn.setText(texts.get(0));
+                    lHints.setText(texts.get(1));
+                } else {
+                    lHints.setText("No valid piece selected (Select piece by Right-Clicking it.)");
+                    tile.setSelected(false);
+                    board.redraw();
                 }
+
             }
+
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
             }

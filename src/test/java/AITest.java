@@ -1,6 +1,5 @@
 import AI.AI;
 import Logic.*;
-import View.GUI;
 
 class AITest {
 
@@ -9,7 +8,7 @@ class AITest {
     @org.junit.jupiter.api.Test
     void winnableMoveTest() {
 
-        TurnManagement manager = new TurnManagement(5);
+        Game manager = new Game(5);
         Tile[][] tiles = new Tile[5][5];
         tiles[0][0] = new Tile(0,0,2);
         tiles[0][3] = new Tile(0,3,2);
@@ -32,7 +31,7 @@ class AITest {
         @org.junit.jupiter.api.Test
         void movementScoringTestBlack() {
 
-            TurnManagement manager = new TurnManagement(5);
+            Game manager = new Game(5);
             Tile[][] tiles = new Tile[5][5];
             tiles[4][4] = new Tile(4,4,2);
             tiles[4][3] = new Tile(4,3,2);
@@ -55,7 +54,7 @@ class AITest {
     @org.junit.jupiter.api.Test
     void movementScoringTestWhite() {
 
-        TurnManagement manager = new TurnManagement(5);
+        Game manager = new Game(5);
         Tile[][] tiles = new Tile[5][5];
         tiles[4][0] = new Tile(4,0,2);
         tiles[4][2] = new Tile(4,2,2);
@@ -74,7 +73,7 @@ class AITest {
         }
         executeTest(manager, tiles);
     }
-    public void executeTest(TurnManagement manager, Tile[][] tiles){
+    public void executeTest(Game manager, Tile[][] tiles){
         manager.setBoard(tiles,1);
         AI ai = new AI();
         ai.calculateNextMove(1, manager);

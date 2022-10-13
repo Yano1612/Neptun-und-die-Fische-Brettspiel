@@ -1,53 +1,49 @@
 package AI;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import Logic.Tile;
 import Logic.*;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class AI {
     Tile startTile = null;
     Tile destinationTile = null;
-    TurnManagement manager = null;
-    List<List<Tile>> NeutralMoves = new ArrayList<>();
-    List<Tile> possibleMoves;
-    public int calculateNextMove(int turn, TurnManagement manager) {
-        this.manager = manager;
-        Tile[][] tiles = manager.getTiles();
+    Game manager = null;
 
-        List<Tile> whiteTiles = new ArrayList<>();
-        List<Tile> blackTiles = new ArrayList<>();
-        for (int r = 0; r < tiles[1].length; r++) {
-            for (int n = 0; n < tiles[1].length; n++) {
-                if (tiles[r][n].getState() == 1) {
-                    whiteTiles.add(tiles[r][n]);
-                } else if (tiles[r][n].getState() == 2) {
-                    blackTiles.add(tiles[r][n]);
-                }
+
+    public int calculateNextMove(int turn, Game manager) {
+        this.manager = manager;
+        List<List<Tile>> possibleMoves= getPossibleMoves(turn, copyTiles(manager.getTiles()));
+        int valueBest = -1000;
+        List<Tile> bestMove = new ArrayList<>();
+        for(int i = 0; i< possibleMoves.size();i++){
+            Game managerTest = new Game(manager.getTiles().length);
+            managerTest.setBoard(copyTiles(manager.getTiles()), turn);
+            managerTest.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(0));
+            int valueMove = miniMax(managerTest, 10,turn,false,-1000,1000);
+            System.out.println(valueMove);
+            if(valueMove > valueBest||i==0){
+                bestMove.clear();
+                valueBest = valueMove;
+                bestMove.add(possibleMoves.get(i).get(0));
+                bestMove.add(possibleMoves.get(i).get(1));
+                System.out.println("Found better move: " + bestMove + " with value " + valueBest);
+            }
+            if(valueMove == 3){
+                break;
             }
         }
-        Tile winner = null;
-        if(turn == 2) {
-            winner = checkWinnableMoves(blackTiles, turn);
-        } else if (turn == 1){
-            winner = checkWinnableMoves(whiteTiles, turn);
-        }
-        if (winner == null) {
-            getTilesToMove(NeutralMoves, turn);
-        } else {
-            destinationTile = winner;
-        }
+        startTile = manager.getTiles()[bestMove.get(0).getRow()][bestMove.get(0).getNum()];
+        destinationTile = manager.getTiles()[bestMove.get(1).getRow()][bestMove.get(1).getNum()];
         return manager.executeMove(startTile, destinationTile);
     }
 
 
-    public List<Tile> getPossibleDestinations(Tile tile, int color) {
+    public List<Tile> getPossibleDestinationsTile(Tile tile, int color) {
         List<Tile> possibleDestinations = new ArrayList<>();
-        List<Tile> adj = Utility.getAdjacentTiles(tile, manager.getTiles());
+        List<Tile> adj = Utility.getAdjacentTiles(tile, copyTiles(manager.getTiles()));
         for (int i = 0; i < adj.size(); i++) {
             if (adj.get(i) != null) {
                 if (color == 1) {
@@ -64,43 +60,6 @@ public class AI {
         return possibleDestinations;
     }
 
-    public Tile checkWinnableMoves(List<Tile> tiles, int turn) {
-        Tile[][] realTiles = manager.getTiles();
-        TurnManagement managerTest = new TurnManagement(realTiles.length);
-        managerTest.setBoard(copyTiles(realTiles), turn);
-
-        Tile[][] testTiles;
-        Tile winner = null;
-        Tile start;
-        for (int i = 0; i < tiles.size(); i++) {
-            start = tiles.get(i);
-            possibleMoves = getPossibleDestinations(start, turn);
-            for (int n = 0; n < possibleMoves.size(); n++) {
-                testTiles = managerTest.getTiles();
-                managerTest.executeMove(testTiles[start.getRow()][start.getNum()], testTiles[possibleMoves.get(n).getRow()][possibleMoves.get(n).getNum()]);
-                if (Utility.checkWinner(managerTest.getTiles()) == turn) {
-                    winner = possibleMoves.get(n);
-                    startTile = start;
-                } else {
-                    if (!managerTest.getStop() && !managerTest.getIllegal()) {
-                        List<Tile> pair = new ArrayList<>();
-                        pair.add(start);
-                        pair.add(possibleMoves.get(n));
-                        NeutralMoves.add(pair);
-                    }
-                    managerTest.setBoard(copyTiles(realTiles), turn);
-                }
-            }
-        }
-        return winner;
-    }
-
-    public List<Tile> returnMovedTiles() {
-        List<Tile> movedTiles = new ArrayList<>();
-        movedTiles.add(startTile);
-        movedTiles.add(destinationTile);
-        return movedTiles;
-    }
 
     private Tile[][] copyTiles(Tile[][] realTiles) {
         Tile[][] tilesCopy = new Tile[realTiles.length][realTiles.length];
@@ -113,96 +72,104 @@ public class AI {
         return tilesCopy;
     }
 
-    public void getTilesToMove(List<List<Tile>> list, int color) {
-        // TODO implement MiniMax algorithm
-        List<Integer> scores = new ArrayList<>();
-        int destScore = 0;
-        int startScore = 0;
-
-        for (int i = 0; i < list.size(); i++) {
-            List<Tile> move = list.get(i);
-            List<Tile> startADJ = Utility.getAdjacentTiles(move.get(0), manager.getTiles());
-            List<Tile> destADJ = Utility.getAdjacentTiles(move.get(1), manager.getTiles());
-            startScore = 0;
-            destScore = 0;
-            for (int n = 0; n < startADJ.size(); n++) {
-                if (color == 2) {
-                    if (startADJ.get(n) != null && destADJ.get(n) != null) {
-                        int stateAdj = startADJ.get(n).getState();
-                        if (stateAdj == 0) {
-                            startScore += 2;
-                        } else if (stateAdj == 1) {
-                            startScore += 1;
-                        }
-                        stateAdj = destADJ.get(n).getState();
-                        if (stateAdj == 0) {
-                            destScore += 2;
-                        }else if (stateAdj == 1) {
-                            destScore += 1;
-                        }
-                    } else {
-                        if (startADJ.get(n) == null) {
-                            startScore += 2;
-                        } else if (destADJ.get(n) == null) {
-                            destScore += 2;
-                        }
-                    }
 
 
-                } else if (color == 1){
-                    if (startADJ.get(n) != null && destADJ.get(n) != null) {
-                        int stateAdj = startADJ.get(n).getState();
-                        if (stateAdj == 1) {
-                            startScore += 2;
-                        } else if (stateAdj == 2) {
-                            startScore += 2;
-                        }
-                        stateAdj = destADJ.get(n).getState();
-                        if (stateAdj == 1) {
-                            destScore += 2;
-                        } else if (stateAdj == 2) {
-                            destScore += 2;
-                        }
-                    }
+
+    public int miniMax(Game node, int depth, int turn, boolean max, int alpha, int beta) {
+        int winner = Utility.checkWinner(node.getTiles());
+        if (winner == turn) {
+            return 3;
+        } else if (winner == 3 - turn) {
+            return -3;
+        }
+        if (depth < 1) {
+            return valOfPos(node, turn);
+        }
+        int value;
+        List<List<Tile>> possibleMoves;
+        if (max) {
+            possibleMoves = getPossibleMoves(turn,node.getTiles());
+            value = -1000;
+            for (int i = 0; i < possibleMoves.size(); i++) {
+
+                Game child = new Game(manager.getTiles().length);
+                child.setBoard(copyTiles(node.getTiles()), turn);
+                child.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(1));
+                value = Math.max(value, miniMax(child,depth-1,turn,false, alpha, beta));
+
+                alpha = Math.max(alpha, value);
+                if(value >= beta){
+                    break;
                 }
-
             }
-            scores.add(destScore - startScore);
-        }
-        int bestScore = Collections.max(scores);
-        List<Tile> bestMove = list.get(scores.indexOf(bestScore));
-        startTile = bestMove.get(0);
-        destinationTile = bestMove.get(1);
-
-    }
-    //TODO Finish Minimax Implementation
-
-    public int miniMax(TurnManagement node, int depth,int turn){
-        // https://en.wikipedia.org/wiki/Minimax
-        int value = 0;
-        if(depth == 0|| node.getStop()){
-            // TODO implement value of method
-            value =  valOf(node);
-        }
-        if(turn == 2){
-            value = -1000000000;
-            for(int i = 0; i<possibleMoves.size();i++){
-                // TODO implement create child method --> Execute move in extra Manager
-                TurnManagement child = null;
-
+        } else {
+            possibleMoves = getPossibleMoves(-turn + 3,node.getTiles());
+            value = 1000;
+            for (int i = 0; i < possibleMoves.size(); i++) {
+                Game child = new Game(manager.getTiles().length);
+                child.setBoard(copyTiles(node.getTiles()), turn);
+                child.executeMove(possibleMoves.get(i).get(0), possibleMoves.get(i).get(1));
+                value = Math.min(value, miniMax(child,depth-1,turn,true, alpha , beta));
+                beta = Math.min(beta, value);
+                if(value <= alpha){
+                    break;
+                }
             }
-        } else if(turn == 1){
-            value = 1000000000;
-            for(int i = 0; i<possibleMoves.size();i++) {
-                // TODO implement create child method --> Execute move in extra Manager
-                TurnManagement child = null;
-            }
+
         }
         return value;
+
     }
 
-    public int valOf(TurnManagement node){
-        return 1;
+    public List<List<Tile>> getPossibleMoves(int turn, Tile[][] tiles) {
+        List<Tile> availableTiles = new ArrayList<>();
+        for (int r = 0; r < tiles[1].length; r++) {
+            for (int n = 0; n < tiles[1].length; n++) {
+                if (tiles[r][n].getState() == turn) {
+                    availableTiles.add(tiles[r][n]);
+                }
+            }
+        }
+        List<Tile> possibleMovesTile;
+        List<List<Tile>> possibleMoves = new ArrayList<>();
+        Tile start;
+        for (int i = 0; i < availableTiles.size(); i++) {
+            start = availableTiles.get(i);
+            possibleMovesTile = getPossibleDestinationsTile(start, turn);
+            for (int n = 0; n < possibleMovesTile.size(); n++) {
+                if (manager.checkLegality(start, possibleMovesTile.get(n), turn)) {
+                    List<Tile> pair = new ArrayList<>();
+                    pair.add(start);
+                    pair.add(possibleMovesTile.get(n));
+                    possibleMoves.add(pair);
+                }
+            }
+        }
+        return possibleMoves;
+    }
+    public int valOfPos(Game node, int turn){
+
+        int max = 0;
+        int[] count = {0, 0};
+        Tile[][] tiles = node.getTiles();
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (tiles[i][j].getState() == 2) {
+                    count[0]+=1;
+                }
+                if (tiles[j][i].getState() == 2) {
+                    count[1]+=1;
+                }
+            }
+            int[] values = new int[]{max, count[0], count[1]};
+            Arrays.sort(values);
+            max = values[2];
+            count = new int[]{0, 0};
+        }
+        int val = (max-1) * (-2 * turn + 3);
+        return val;
+
     }
 
 }

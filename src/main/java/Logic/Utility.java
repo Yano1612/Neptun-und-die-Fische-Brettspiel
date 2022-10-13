@@ -57,9 +57,9 @@ public class Utility {
         }
         // Checking if Black has won
         boolean possibleMoves = false;
-        for (int k = 0; k < 3; k++) {
+        for (int k = 0; k < blackTiles.size(); k++) {
             List<Tile> Adj = getAdjacentTiles(blackTiles.get(k), tiles);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < Adj.size(); i++) {
                 if (Adj.get(i) != null) {
                     if (Adj.get(i).getState() == 1) {
                         possibleMoves = true;
