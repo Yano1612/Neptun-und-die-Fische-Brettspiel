@@ -5,16 +5,15 @@ import java.util.List;
 
 
 public class Game {
-    Tile startTile;
-    int winner = 0;
-    boolean stop = false;
-    boolean illegalMove = false;
-    int turn = 2;
-    Tile[][] tiles;
+    private int winner = 0;
+    private boolean stop = false;
+    private boolean illegalMove = false;
+    private int turn = 2;
+    private Tile[][] tiles;
     public Tile[][] getTiles(){
         return this.tiles;
     }
-    boolean firstMove = true;
+    private boolean firstMove = true;
 
     public boolean isFirstMove() {
         return firstMove;
@@ -30,9 +29,9 @@ public class Game {
         for (int n = 0; n < lenRow; n++) {
             for (int i = 0; i < lenRow; i++) {
                 if(counter==4||counter==12||counter==20) {
-                    tiles[n][i]  = new Tile(n, i, 2);
+                    tiles[i][n]  = new Tile(i, n, 2);
                 } else {
-                    tiles[n][i] = new Tile(n, i, 1);
+                    tiles[i][n] = new Tile(i, n, 1);
                 }
                 counter += 1;
             }
@@ -41,11 +40,10 @@ public class Game {
     }
     public int executeMove(Tile startTile, Tile destinationTile) {
         illegalMove = false;
-        this.startTile = startTile;
         // Execution of the Move (also Checks the legality of the move)
         if (checkLegality(startTile, destinationTile, turn) && !stop) {
             destinationTile.setState(turn);
-            this.startTile.setState(0);
+            startTile.setState(0);
             if (turn == 1) {
                 turn = 2;
             } else if (turn == 2) {
@@ -54,7 +52,6 @@ public class Game {
             firstMove = false;
         } else {
             illegalMove = true;
-            this.startTile.setSelected(false);
         }
 
         // Checking, if a player has won
@@ -76,9 +73,7 @@ public class Game {
 
         } else if (legal && turn == 1 && destinationTile.getState() != 0) {
             legal = false;
-
         }
-        System.out.println(legal);
         return legal;
     }
     public List<String> labelConfig(){
@@ -101,13 +96,9 @@ public class Game {
     }
     public Game(int lenRow){
         tiles = new Tile[lenRow][lenRow];
-    }
 
+    }
     public boolean getIllegal() {
         return this.illegalMove;
-    }
-
-    public boolean getStop() {
-        return this.stop;
     }
 }

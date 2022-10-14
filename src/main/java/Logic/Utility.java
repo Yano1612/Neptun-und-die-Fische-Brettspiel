@@ -4,31 +4,19 @@ import java.util.List;
 
 
 public class Utility {
+    private static void addTile(List<Tile> list ,int row, int num, Tile[][] tiles){
+        if(row >= 0 && row < tiles.length && num >=0&& num < tiles.length){
+            list.add(tiles[row][num]);
+        }
+    }
     public static List<Tile> getAdjacentTiles(Tile tile, Tile[][] tiles) {
         // Creating a list of Adjacent tiles
-        List<Tile> Adjacent = new ArrayList<>();
-        if(!(tile.getRow()+1 >= tiles[1].length)) {
-            Adjacent.add(tiles[tile.getRow() + 1][tile.getNum()]);
-        } else {
-            Adjacent.add(null);
-        }
-        if(!(tile.getRow()-1 < 0)){
-            Adjacent.add(tiles[tile.getRow() - 1][tile.getNum()]);
-        } else {
-            Adjacent.add(null);
-        }
-        if(!(tile.getNum()+1 >= tiles[1].length)){
-            Adjacent.add(tiles[tile.getRow()][tile.getNum() + 1]);
-        } else {
-            Adjacent.add(null);
-        }
-        if(!(tile.getNum()-1 < 0 )) {
-            Adjacent.add(tiles[tile.getRow()][tile.getNum() - 1]);
-        } else {
-            Adjacent.add(null);
-        }
-
-        return Adjacent;
+        List<Tile> adjacent = new ArrayList<>();
+        addTile(adjacent, tile.getRow()-1,tile.getNum(), tiles);
+        addTile(adjacent, tile.getRow()+1,tile.getNum(), tiles);
+        addTile(adjacent, tile.getRow(),tile.getNum()+1, tiles);
+        addTile(adjacent, tile.getRow(),tile.getNum()-1, tiles);
+        return adjacent;
     }
 
     public static int checkWinner(Tile[][] tiles) {
@@ -58,12 +46,10 @@ public class Utility {
         // Checking if Black has won
         boolean possibleMoves = false;
         for (int k = 0; k < blackTiles.size(); k++) {
-            List<Tile> Adj = getAdjacentTiles(blackTiles.get(k), tiles);
-            for (int i = 0; i < Adj.size(); i++) {
-                if (Adj.get(i) != null) {
-                    if (Adj.get(i).getState() == 1) {
-                        possibleMoves = true;
-                    }
+            List<Tile> adj = getAdjacentTiles(blackTiles.get(k), tiles);
+            for (int i = 0; i < adj.size(); i++) {
+                if (adj.get(i).getState() == 1) {
+                    possibleMoves = true;
                 }
             }
         }
@@ -75,5 +61,16 @@ public class Utility {
         }
         return won;
     }
+    public static Tile[][] copyTiles(Tile[][] realTiles) {
+        Tile[][] tilesCopy = new Tile[realTiles.length][realTiles.length];
+        for (int i = 0; i < tilesCopy.length; i++) {
+            for (int n = 0; n < tilesCopy.length; n++) {
+                tilesCopy[i][n] = new Tile(i, n, realTiles[i][n].getState());
+            }
+        }
+        return tilesCopy;
+    }
+    private Utility(){}
+
 }
 

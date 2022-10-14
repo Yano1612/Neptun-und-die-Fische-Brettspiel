@@ -25,7 +25,7 @@ public class GUI {
     int turn = 2;
     Tile mover = null;
     Canvas board = new Canvas(shell, SWT.NONE);
-    // TODO Remove variable
+    Tile selectedTile = null;
 
 
     public void initGUI(Game TurnManager, int size) {
@@ -62,24 +62,18 @@ public class GUI {
             public void mouseDown(MouseEvent mouseEvent) {
                 List<String> texts;
                 AINormal ai = new AINormal();
-
                 turn = ai.calculateNextMove(turn, manager);
-
-
                 board.redraw();
-
                 texts = manager.labelConfig();
                 lTurn.setText(texts.get(0));
                 lHints.setText(texts.get(1));
-
             }
-
             @Override
             public void mouseUp(MouseEvent mouseEvent) {
             }
         });
         bAI.pack();
-        // erstellen der Spielfelder
+        // creating the tiles
         board.setBounds(10, 10, width + 1, height + 1);
         board.addPaintListener(new PaintListener() {
             @Override
@@ -88,31 +82,32 @@ public class GUI {
                 Font font2 = new Font(shell.getDisplay(), "Arial", 14, SWT.NONE);
                 Tile[][] tiles = manager.getTiles();
                 for (int n = 0; n < lenRow; n++) {
-
                     for (int i = 0; i < lenRow; i++) {
                         Tile tile = tiles[n][i];
-
                         e.gc.drawRectangle(n * size, i * size, size, size);
-                        if (tile.getSelected()) {
-                            e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_RED));
-                            e.gc.fillRectangle(n * size, i * size, size, size);
-
-
+                        if(selectedTile != null) {
+                            if (tile.isEqualTo(selectedTile)) {
+                                e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_RED));
+                                e.gc.fillRectangle(n * size, i * size, size, size);
+                            }
                         }
                         if (tile.getState() == 1) {
                             e.gc.setFont(font2);
-                            if (!tile.getSelected()) {
-                                e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+                            if(selectedTile != null) {
+                                if (!(tile.isEqualTo(selectedTile))) {
+                                    e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+                                }
                             }
                             e.gc.drawText("W", n * size + size / 2 - 7, i * size + size / 2 - 7);
                         } else if (tile.getState() == 2) {
                             e.gc.setFont(font);
-                            if (!tile.getSelected()) {
-                                e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+                            if(selectedTile != null) {
+                                if (!(tile.isEqualTo(selectedTile))) {
+                                    e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+                                }
                             }
                             e.gc.drawText("B", n * size + 28, i * size + 28);
                         }
-                        tile.setSelected(false);
                     }
 
                 }
@@ -125,7 +120,7 @@ public class GUI {
 
             @Override
             public void mouseDown(MouseEvent e) {
-                // Redrawing the Tiles
+                // Finding pos of click and redrawing GUI
                 int tileX = (int) Math.ceil(e.x / (width / lenRow));
                 int tileY = (int) Math.ceil(e.y / (width / lenRow));
                 Tile tile = manager.getTiles()[tileX][tileY];
@@ -137,7 +132,7 @@ public class GUI {
                 }
 
                 if (e.button == 3) {
-                    tile.setSelected(true);
+                    selectedTile = tile;
                     board.redraw();
                     // Selecting the starting Tile with a right click
                     mover = tile;
@@ -145,6 +140,7 @@ public class GUI {
                     // Executing the Move on the Left-Clicked tile
                     turn = manager.executeMove(mover, tile);
                     mover = null;
+                    selectedTile = null;
                     // Configurung Labels
                     List<String> texts;
                     texts = manager.labelConfig();
@@ -152,7 +148,7 @@ public class GUI {
                     lHints.setText(texts.get(1));
                 } else {
                     lHints.setText("No valid piece selected (Select piece by Right-Clicking it.)");
-                    tile.setSelected(false);
+                    selectedTile = null;
                     board.redraw();
                 }
 
