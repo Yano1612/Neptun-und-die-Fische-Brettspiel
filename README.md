@@ -1,2 +1,2 @@
-# Neptun-und-die-Fische-Zwischenstand
+# Neptun-und-die-Fische-Brettspiel
 Board Game
